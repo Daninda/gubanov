@@ -2,54 +2,36 @@ const Router = require("express");
 const router = new Router();
 const controller = require("./controller");
 
-router.get("/teachers", controller.getTeachers);
-router.get("/teacher-raw/:id", controller.getTeacherRaw);
-router.put("/teacher/:id", controller.updateTeacher);
-router.post("/teacher", controller.createTeacher);
-router.delete("/teacher/:id", controller.deleteTeacher);
+router.get("/books", controller.getBooks);
+router.get("/book/:id", controller.getBook);
+router.put("/book/:id", controller.updateBook);
+router.post("/book", controller.createBook);
+router.delete("/book/:id", controller.deleteBook);
 
-router.get("/students", controller.getStudents);
-router.get("/student-raw/:id", controller.getStudentRaw);
-router.put("/student/:id", controller.updateStudent);
-router.post("/student", controller.createStudent);
-router.delete("/student/:id", controller.deleteStudent);
+router.get("/book-themes", controller.getBookThemes);
+router.post("/book-theme", controller.createBookTheme);
+router.delete("/book-theme/:id", controller.deleteBookTheme);
 
-router.get("/topics", controller.getTopics);
-router.get("/topic/:id", controller.getTopic);
-router.get("/topic-raw/:id", controller.getTopicRaw);
-router.get("/free-teacher-topics/:id", controller.getFreeTeacherTopics);
-router.put("/topic/:id", controller.updateTopic);
-router.post("/topic", controller.createTopic);
-router.delete("/topic/:id", controller.deleteTopic);
+router.get("/themes", controller.getThemes);
+router.get("/theme/:id", controller.getTheme);
+router.put("/theme/:id", controller.updateTheme);
+router.post("/theme", controller.createTheme);
+router.delete("/theme/:id", controller.deleteTheme);
 
-router.get("/departments", controller.getDepartments);
-router.get("/department-raw/:id", controller.getDepartmentRaw);
-router.put("/department/:id", controller.updateDepartment);
-router.post("/department", controller.createDepartment);
-router.delete("/department/:id", controller.deleteDepartment);
+router.get("/readers", controller.getReaders);
+router.get("/reader/:id", controller.getReader);
+router.put("/reader/:id", controller.updateReader);
+router.post("/reader", controller.createReader);
+router.delete("/reader/:id", controller.deleteReader);
 
-router.get("/faculties", controller.getFaculties);
-router.get("/faculty-raw/:id", controller.getFacultyRaw);
-router.put("/faculty/:id", controller.updateFaculty);
-router.post("/faculty", controller.createFaculty);
-router.delete("/faculty/:id", controller.deleteFaculty);
+router.get("/reader-copies", controller.getReaderCopies);
+router.get("/reader-copy", controller.getReaderCopy);
+router.put("/reader-copy", controller.updateReaderCopy);
+router.post("/reader-copy", controller.createReaderCopy);
+router.delete("/reader-copy", controller.deleteReaderCopy);
 
-router.get("/groups", controller.getGroups);
-router.get("/group-raw/:id", controller.getGroupRaw);
-router.put("/group/:id", controller.updateGroup);
-router.post("/group", controller.createGroup);
-router.delete("/group/:id", controller.deleteGroup);
-
-router.get("/science-degrees", controller.getScienceDegrees);
-router.get("/science-degree-raw/:id", controller.getScienceDegreeRaw);
-router.put("/science-degree/:id", controller.updateScienceDegree);
-router.post("/science-degree", controller.createScienceDegree);
-router.delete("/science-degree/:id", controller.deleteScienceDegree);
-
-router.get("/teacher-ranks", controller.getTeacherRanks);
-router.get("/teacher-rank-raw/:id", controller.getTeacherRankRaw);
-router.put("/teacher-rank/:id", controller.updateTeacherRank);
-router.post("/teacher-rank", controller.createTeacherRank);
-router.delete("/teacher-rank/:id", controller.deleteTeacherRank);
+router.get("/copies", controller.getCopies);
+router.post("/copy", controller.createCopy);
+router.delete("/copy/:id", controller.deleteCopy);
 
 module.exports = router;

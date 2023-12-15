@@ -3,24 +3,24 @@ import { withSnackbar } from "react-simple-snackbar";
 import DataService from "../../services/DataService.js";
 import { Link } from "react-router-dom";
 
-class CreateGroup extends Component {
+class CreateTheme extends Component {
 	constructor(params) {
 		super(params);
 		this.state = {
-			number: "",
+			name: "",
 		};
 
 		this.onClickSubmit = this.onClickSubmit.bind(this);
 	}
 
 	onClickSubmit() {
-		if (this.state.number) {
-			DataService.createGroup({
-				number: this.state.number,
+		if (this.state.name) {
+			DataService.createTheme({
+				name: this.state.name,
 			})
 				.then(() => {
 					this.setState({
-						number: "",
+						name: "",
 					});
 					this.props.openSnackbar("Успешно", 5000);
 				})
@@ -34,11 +34,11 @@ class CreateGroup extends Component {
 	render() {
 		return (
 			<>
-				<table className="table">
-					<caption className="table__title">Добавление группы</caption>
+				<table className="table student-table">
+					<caption className="table__title">Добавление темы</caption>
 					<thead>
 						<tr>
-							<th>Группа</th>
+							<th>Наименование темы</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -47,10 +47,10 @@ class CreateGroup extends Component {
 								<input
 									type="text"
 									className="input"
-									value={this.state.number}
+									value={this.state.name}
 									onChange={(e) => {
 										this.setState({
-											number: e.target.value,
+											name: e.target.value,
 										});
 									}}
 								/>
@@ -66,4 +66,4 @@ class CreateGroup extends Component {
 	}
 }
 
-export default withSnackbar(CreateGroup);
+export default withSnackbar(CreateTheme);

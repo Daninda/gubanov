@@ -1,25 +1,27 @@
 const db = require("./db");
 
 class Controller {
-	async createTeacher(req, res) {
+	async createBook(req, res) {
 		const {
-			full_name,
-			phone,
-			email,
-			science_degree_id,
-			department_id,
-			teacher_rank_id,
+			book_name,
+			first_author,
+			publication_place,
+			year,
+			sheets,
+			cost,
+			publication,
 		} = req.body;
 		await db.query(
-			`INSERT INTO teacher (full_name, phone, email, science_degree_id, department_id, teacher_rank_id) VALUES
-            (?, ?, ?, ?, ?, ?)`,
+			`INSERT INTO LibSub.\`Книги\` (\`название книги\`, \`первый автор\`, \`место издания\`, \`год издания\`, \`количество страниц\`, \`цена\`, \`Издательство\`) VALUES
+            (?, ?, ?, ?, ?, ?, ?)`,
 			[
-				full_name,
-				phone,
-				email,
-				science_degree_id,
-				department_id,
-				teacher_rank_id,
+				book_name,
+				first_author,
+				publication_place,
+				year,
+				sheets,
+				cost,
+				publication,
 			],
 			(err, result, field) => {
 				if (err) {
@@ -30,27 +32,29 @@ class Controller {
 			}
 		);
 	}
-	async updateTeacher(req, res) {
+	async updateBook(req, res) {
 		const id = +req.params.id;
 		const {
-			full_name,
-			phone,
-			email,
-			science_degree_id,
-			department_id,
-			teacher_rank_id,
+			book_name,
+			first_author,
+			publication_place,
+			year,
+			sheets,
+			cost,
+			publication,
 		} = req.body;
 		await db.query(
-			`UPDATE teacher SET
-			full_name = ?, phone = ?, email = ?, science_degree_id = ?, department_id = ?, teacher_rank_id = ?
-            WHERE teacher_id = ?`,
+			`UPDATE LibSub.\`Книги\` SET
+			\`название книги\` = ?, \`первый автор\` = ?, \`место издания\` = ?, \`год издания\` = ?, \`количество страниц\` = ?, \`цена\` = ?, \`Издательство\` = ?
+            WHERE \`Шифр книги\` = ?`,
 			[
-				full_name,
-				phone,
-				email,
-				science_degree_id,
-				department_id,
-				teacher_rank_id,
+				book_name,
+				first_author,
+				publication_place,
+				year,
+				sheets,
+				cost,
+				publication,
 				id,
 			],
 			(err, result, field) => {
@@ -62,10 +66,10 @@ class Controller {
 			}
 		);
 	}
-	async deleteTeacher(req, res) {
+	async deleteBook(req, res) {
 		const id = +req.params.id;
 		await db.query(
-			`DELETE FROM topic WHERE teacher_id = ?`,
+			`DELETE FROM LibSub.Экземпляры WHERE \`Книги_Шифр книги\` = ?`,
 			[id],
 			(err, result, field) => {
 				if (err) {
@@ -73,27 +77,33 @@ class Controller {
 					return res.status(500).json({ message: "Ошибка" });
 				}
 				db.query(
-					`DELETE FROM teacher WHERE teacher_id = ?`,
+					`DELETE FROM LibSub.\`Книги_has_Тематические каталоги\` WHERE \`Книги_Шифр книги\` = ?`,
 					[id],
 					(err, result, field) => {
 						if (err) {
 							console.log(err);
 							return res.status(500).json({ message: "Ошибка" });
 						}
-						res.json(result);
+						db.query(
+							`DELETE FROM LibSub.\`Книги\` WHERE \`Шифр книги\` = ?`,
+							[id],
+							(err, result, field) => {
+								if (err) {
+									console.log(err);
+									return res.status(500).json({ message: "Ошибка" });
+								}
+								res.json(result);
+							}
+						);
 					}
 				);
 			}
 		);
 	}
-	async getTeachers(req, res) {
+	async getBooks(req, res) {
 		await db.query(
-			`SELECT teacher_id, full_name, phone, email, science_degree.name science_degree, department.name department, teacher_rank.name teacher_rank 
-            FROM teacher
-            JOIN science_degree USING(science_degree_id)
-            JOIN department USING(department_id)
-            JOIN teacher_rank USING(teacher_rank_id)
-			ORDER BY full_name`,
+			`SELECT \`Шифр книги\` as book_id, \`название книги\` as book_name, \`первый автор\` as first_author, \`место издания\` as publication_place, \`год издания\` as year, \`количество страниц\` as sheets, \`цена\` as cost, \`Издательство\` as publication
+            FROM \`Книги\``,
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
@@ -103,11 +113,12 @@ class Controller {
 			}
 		);
 	}
-	async getTeacherRaw(req, res) {
+	async getBook(req, res) {
 		const id = +req.params.id;
 		await db.query(
-			`SELECT * FROM teacher
-			WHERE teacher_id = ?`,
+			`SELECT \`Шифр книги\` as book_id, \`название книги\` as book_name, \`первый автор\` as first_author, \`место издания\` as publication_place, \`год издания\` as year, \`количество страниц\` as sheets, \`цена\` as cost, \`Издательство\` as publication
+            FROM \`Книги\`
+			WHERE \`Шифр книги\` = ?`,
 			[id],
 			(err, result, field) => {
 				if (err) {
@@ -119,118 +130,88 @@ class Controller {
 		);
 	}
 
-	async createStudent(req, res) {
-		const { full_name, group_id, faculty_id, topic_id, exam, diploma } =
-			req.body;
+	async createBookTheme(req, res) {
+		const { book_id, theme_id } = req.body;
 		await db.query(
-			`INSERT INTO student (full_name, group_id, faculty_id, topic_id) VALUES
-            (?, ?, ?, ?)`,
-			[full_name, group_id, faculty_id, topic_id],
+			`INSERT INTO LibSub.\`Книги_has_Тематические каталоги\` (\`Книги_Шифр книги\`, \`Тематические каталоги_код темы\`)
+			VALUES (?, ?);`,
+			[book_id, theme_id],
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
 					return res.status(500).json({ message: "Ошибка" });
 				}
-				db.query(
-					`INSERT INTO grade (exam, diploma, student_id) VALUES
-                    (?, ?, ?)`,
-					[exam, diploma, result.insertId],
-					(err, result, field) => {
-						if (err) {
-							console.log(err);
-							return res.status(500).json({ message: "Ошибка" });
-						}
-						res.json(result);
-					}
-				);
+				res.json(result);
 			}
 		);
 	}
-	async updateStudent(req, res) {
+	async deleteBookTheme(req, res) {
 		const id = +req.params.id;
-		const { full_name, group_id, faculty_id, topic_id, exam, diploma } =
-			req.body;
 		await db.query(
-			`UPDATE student SET 
-			full_name = ?, group_id = ?, faculty_id = ?, topic_id = ?
-			WHERE student_id = ?`,
-			[full_name, group_id, faculty_id, topic_id, id],
+			`DELETE FROM LibSub.\`Книги_has_Тематические каталоги\` WHERE \`Книги_Шифр книги\` = ?`,
+			[id],
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
 					return res.status(500).json({ message: "Ошибка" });
 				}
-				db.query(
-					`UPDATE grade SET 
-					exam = ?, diploma = ?
-					WHERE student_id = ?`,
-					[exam, diploma, id],
-					(err, result, field) => {
-						if (err) {
-							console.log(err);
-							return res.status(500).json({ message: "Ошибка" });
-						}
-						res.json(result);
-					}
-				);
+				res.json(result);
+			}
+		);
+	}
+	async getBookThemes(req, res) {
+		await db.query(
+			`SELECT \`Шифр книги\` as book_id, \`название книги\` as book_name, \`первый автор\` as first_author, \`Тематические каталоги_код темы\` as theme_id, \`наименование темы\` as theme_name
+            FROM \`Книги\`
+            LEFT JOIN \`Книги_has_Тематические каталоги\` ON \`Шифр книги\` = \`Книги_Шифр книги\`
+			JOIN \`Тематические каталоги\` ON \`Тематические каталоги_код темы\` = \`код темы\`
+			ORDER BY book_id`,
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
 			}
 		);
 	}
 
-	async deleteStudent(req, res) {
+	async createTheme(req, res) {
+		const { name } = req.body;
+		await db.query(
+			`INSERT INTO LibSub.\`Тематические каталоги\` (\`наименование темы\`) VALUES
+            (?)`,
+			[name],
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+	async updateTheme(req, res) {
+		const id = +req.params.id;
+		const { name } = req.body;
+		await db.query(
+			`UPDATE LibSub.\`Тематические каталоги\` SET 
+			\`наименование темы\` = ?
+			WHERE \`код темы\` = ?`,
+			[name, id],
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+	async deleteTheme(req, res) {
 		const id = +req.params.id;
 		db.query(
-			`DELETE FROM grade WHERE student_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				db.query(
-					`DELETE FROM student WHERE student_id = ?`,
-					[id],
-					(err, result, field) => {
-						if (err) {
-							console.log(err);
-							return res.status(500).json({ message: "Ошибка" });
-						}
-						res.json(result);
-					}
-				);
-			}
-		);
-	}
-	async getStudents(req, res) {
-		await db.query(
-			`SELECT student_id, student.full_name, \`group\`.number 'group', faculty.name faculty, teacher.full_name 'teacher', topic.name topic, grade.exam, grade.diploma
-            FROM student
-            JOIN \`group\` USING(group_id)
-            JOIN faculty USING(faculty_id)
-            JOIN topic USING(topic_id)
-			JOIN teacher USING(teacher_id)
-            JOIN grade USING(student_id)
-			ORDER BY student.full_name`,
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getStudent(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`SELECT student_id, student.full_name, \`group\`.number 'group', faculty.name faculty, teacher.full_name 'teacher', topic.name topic, grade.exam, grade.diploma
-            FROM student
-            JOIN \`group\` USING(group_id)
-            JOIN faculty USING(faculty_id)
-            JOIN topic USING(topic_id)
-			JOIN teacher USING(teacher_id)
-            JOIN grade USING(student_id)
-			WHERE student_id = ?`,
+			`DELETE FROM LibSub.\`Тематические каталоги\` WHERE \`код темы\` = ?`,
 			[id],
 			(err, result, field) => {
 				if (err) {
@@ -241,15 +222,25 @@ class Controller {
 			}
 		);
 	}
-	async getStudentRaw(req, res) {
+	async getThemes(req, res) {
+		await db.query(
+			`SELECT \`код темы\` as theme_id, \`наименование темы\` as name
+            FROM \`Тематические каталоги\``,
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+	async getTheme(req, res) {
 		const id = +req.params.id;
 		await db.query(
-			`SELECT student_id, student.full_name, group_id, faculty_id, teacher_id, topic_id, grade.exam, grade.diploma
-			FROM student
-			JOIN topic USING(topic_id)
-			JOIN teacher USING(teacher_id)
-			JOIN grade USING(student_id)
-			WHERE student_id = ?`,
+			`SELECT \`код темы\` as theme_id, \`наименование темы\` as name
+            FROM \`Тематические каталоги\`
+			WHERE \`код темы\` = ?`,
 			[id],
 			(err, result, field) => {
 				if (err) {
@@ -261,12 +252,12 @@ class Controller {
 		);
 	}
 
-	async createTopic(req, res) {
-		const { name, teacher_id } = req.body;
+	async createReaderCopy(req, res) {
+		const { reader_id, copy_id, issue_date, return_date } = req.body;
 		await db.query(
-			`INSERT INTO topic (name, teacher_id) VALUES
-            (?, ?)`,
-			[name, teacher_id],
+			`INSERT INTO LibSub.\`Читатели_has_Книги\` (\`Читатели_номер читательского билета\`, \`Экземпляры_инвентарный номер\`, \`Дата выдачи\`, \`Дата возврата\`)
+			VALUES (?, ?, ?, ?)`,
+			[reader_id, copy_id, issue_date, return_date],
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
@@ -276,14 +267,15 @@ class Controller {
 			}
 		);
 	}
-	async updateTopic(req, res) {
-		const id = +req.params.id;
-		const { name, teacher_id } = req.body;
+	async updateReaderCopy(req, res) {
+		const { reader_id, copy_id } = req.query;
+		const { issue_date, return_date } = req.body;
 		await db.query(
-			`UPDATE topic SET
-			name = ?, teacher_id = ?
-            WHERE topic_id = ?`,
-			[name, teacher_id, id],
+			`UPDATE LibSub.\`Читатели_has_Книги\` SET
+			\`Дата выдачи\` = ?, 
+			\`Дата возврата\` = ?
+			WHERE \`Читатели_номер читательского билета\` = ? AND \`Экземпляры_инвентарный номер\` = ?`,
+			[issue_date, return_date, reader_id, copy_id],
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
@@ -293,10 +285,93 @@ class Controller {
 			}
 		);
 	}
-	async deleteTopic(req, res) {
+	async deleteReaderCopy(req, res) {
+		const { reader_id, copy_id } = req.query;
+		await db.query(
+			`DELETE FROM LibSub.\`Читатели_has_Книги\`
+			WHERE \`Читатели_номер читательского билета\` = ? AND \`Экземпляры_инвентарный номер\` = ?`,
+			[reader_id, copy_id],
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+	async getReaderCopies(req, res) {
+		await db.query(
+			`SELECT \`Читатели_номер читательского билета\` as reader_id, \`Ф.И.О. читателя\` as full_name, \`Экземпляры_инвентарный номер\` as copy_id, \`название книги\` as book_name, \`первый автор\` as author, \`Дата выдачи\` as issue_date, \`Дата возврата\` as return_date
+            FROM LibSub.\`Читатели_has_Книги\`
+			JOIN LibSub.\`Читатели\` ON \`Читатели_номер читательского билета\` = \`номер читательского билета\`
+			JOIN LibSub.\`Экземпляры\` ON \`Экземпляры_инвентарный номер\` = \`инвентарный номер\`
+			JOIN LibSub.\`Книги\` ON \`Книги_Шифр книги\` = \`Шифр книги\``,
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+	async getReaderCopy(req, res) {
+		const { reader_id, copy_id } = req.query;
+		await db.query(
+			`SELECT \`Читатели_номер читательского билета\` as reader_id, \`Экземпляры_инвентарный номер\` as copy_id, \`Дата выдачи\` as issue_date, \`Дата возврата\` as return_date
+            FROM LibSub.\`Читатели_has_Книги\`
+			JOIN LibSub.\`Читатели\` ON \`Читатели_номер читательского билета\` = \`номер читательского билета\`
+			WHERE \`Читатели_номер читательского билета\` = ? AND \`Экземпляры_инвентарный номер\` = ?`,
+			[reader_id, copy_id],
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+
+	async createReader(req, res) {
+		const { full_name, birth, phone } = req.body;
+		await db.query(
+			`INSERT INTO LibSub.\`Читатели\` (\`Ф.И.О. читателя\`, \`дата рождения\`, \`телефон\`) VALUES
+            (?, ?, ?)`,
+			[full_name, birth, phone],
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+	async updateReader(req, res) {
+		const id = +req.params.id;
+		const { full_name, birth, phone } = req.body;
+		await db.query(
+			`UPDATE LibSub.\`Читатели\` SET
+			\`Ф.И.О. читателя\` = ?,
+			\`дата рождения\` = ?,
+			\`телефон\` = ?
+            WHERE \`номер читательского билета\` = ?`,
+			[full_name, birth, phone, id],
+			(err, result, field) => {
+				if (err) {
+					console.log(err);
+					return res.status(500).json({ message: "Ошибка" });
+				}
+				res.json(result);
+			}
+		);
+	}
+	async deleteReader(req, res) {
 		const id = +req.params.id;
 		await db.query(
-			`DELETE FROM topic WHERE topic_id = ?`,
+			`DELETE FROM LibSub.Читатели WHERE \`номер читательского билета\` = ?`,
 			[id],
 			(err, result, field) => {
 				if (err) {
@@ -307,12 +382,10 @@ class Controller {
 			}
 		);
 	}
-	async getTopics(req, res) {
+	async getReaders(req, res) {
 		await db.query(
-			`SELECT topic_id, name, teacher.full_name 
-            FROM topic
-            JOIN teacher USING(teacher_id)
-			ORDER BY full_name`,
+			`SELECT \`номер читательского билета\` as reader_id, \`Ф.И.О. читателя\` as full_name, \`дата рождения\` as birth, \`телефон\` as phone
+            FROM LibSub.\`Читатели\``,
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
@@ -322,45 +395,12 @@ class Controller {
 			}
 		);
 	}
-	async getTopicRaw(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`SELECT * FROM topic
-			WHERE topic_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getTopic(req, res) {
+	async getReader(req, res) {
 		const id = req.params.id;
 		await db.query(
-			`SELECT topic_id, name, teacher.full_name 
-            FROM topic
-            JOIN teacher USING(teacher_id)
-			WHERE topic_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getFreeTeacherTopics(req, res) {
-		const id = req.params.id;
-		await db.query(
-			`SELECT topic.topic_id, topic.name 
-			FROM topic
-			LEFT JOIN student USING(topic_id)
-			WHERE teacher_id = ? AND student.topic_id IS NULL`,
+			`SELECT \`номер читательского билета\` as reader_id, \`Ф.И.О. читателя\` as full_name, \`дата рождения\` as birth, \`телефон\` as phone
+            FROM LibSub.\`Читатели\`
+			WHERE \`номер читательского билета\` = ?`,
 			[id],
 			(err, result, field) => {
 				if (err) {
@@ -372,12 +412,12 @@ class Controller {
 		);
 	}
 
-	async createDepartment(req, res) {
-		const { name } = req.body;
+	async createCopy(req, res) {
+		const { book_id } = req.body;
 		await db.query(
-			`INSERT INTO department (name) VALUES
-            (?)`,
-			[name],
+			`INSERT INTO LibSub.\`Экземпляры\` (\`Книги_Шифр книги\`)
+			VALUES (?)`,
+			[book_id],
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
@@ -387,14 +427,11 @@ class Controller {
 			}
 		);
 	}
-	async updateDepartment(req, res) {
-		const id = +req.params.id;
-		const { name } = req.body;
+	async deleteCopy(req, res) {
+		const copy_id = +req.params.id;
 		await db.query(
-			`UPDATE department SET
-			name = ?
-            WHERE department_id = ?`,
-			[name, id],
+			`DELETE FROM LibSub.Экземпляры WHERE \`инвентарный номер\` = ?`,
+			[copy_id],
 			(err, result, field) => {
 				if (err) {
 					console.log(err);
@@ -404,319 +441,11 @@ class Controller {
 			}
 		);
 	}
-	async deleteDepartment(req, res) {
-		const id = +req.params.id;
+	async getCopies(req, res) {
 		await db.query(
-			`DELETE FROM department WHERE department_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getDepartments(req, res) {
-		await db.query(`SELECT * FROM department`, (err, result, field) => {
-			if (err) {
-				console.log(err);
-				return res.status(500).json({ message: "Ошибка" });
-			}
-			res.json(result);
-		});
-	}
-	async getDepartmentRaw(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`SELECT * FROM department
-			WHERE department_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-
-	async createFaculty(req, res) {
-		const { name } = req.body;
-		await db.query(
-			`INSERT INTO faculty (name) VALUES
-            (?)`,
-			[name],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async updateFaculty(req, res) {
-		const id = +req.params.id;
-		const { name } = req.body;
-		await db.query(
-			`UPDATE faculty SET
-			name = ?
-            WHERE faculty_id = ?`,
-			[name, id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async deleteFaculty(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`DELETE FROM faculty WHERE faculty_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getFaculties(req, res) {
-		await db.query(`SELECT * FROM faculty`, (err, result, field) => {
-			if (err) {
-				console.log(err);
-				return res.status(500).json({ message: "Ошибка" });
-			}
-			res.json(result);
-		});
-	}
-	async getFacultyRaw(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`SELECT * FROM faculty
-			WHERE faculty_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-
-	async createGroup(req, res) {
-		const { number } = req.body;
-		await db.query(
-			`INSERT INTO \`group\` (number) VALUES
-            (?)`,
-			[number],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async updateGroup(req, res) {
-		const id = +req.params.id;
-		const { number } = req.body;
-		await db.query(
-			`UPDATE \`group\` SET
-			number = ?
-            WHERE group_id = ?`,
-			[number, id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async deleteGroup(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`DELETE FROM \`group\` WHERE group_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getGroups(req, res) {
-		await db.query(`SELECT * FROM \`group\``, (err, result, field) => {
-			if (err) {
-				console.log(err);
-				return res.status(500).json({ message: "Ошибка" });
-			}
-			res.json(result);
-		});
-	}
-	async getGroupRaw(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`SELECT * FROM \`group\`
-			WHERE group_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-
-	async createScienceDegree(req, res) {
-		const { name } = req.body;
-		await db.query(
-			`INSERT INTO science_degree (name) VALUES
-            (?)`,
-			[name],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async updateScienceDegree(req, res) {
-		const id = +req.params.id;
-		const { name } = req.body;
-		await db.query(
-			`UPDATE science_degree SET
-			name = ?
-            WHERE science_degree_id = ?`,
-			[name, id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async deleteScienceDegree(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`DELETE FROM science_degree WHERE science_degree_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getScienceDegrees(req, res) {
-		await db.query(`SELECT * FROM science_degree`, (err, result, field) => {
-			if (err) {
-				console.log(err);
-				return res.status(500).json({ message: "Ошибка" });
-			}
-			res.json(result);
-		});
-	}
-	async getScienceDegreeRaw(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`SELECT * FROM science_degree
-			WHERE science_degree_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-
-	async createTeacherRank(req, res) {
-		const { name } = req.body;
-		await db.query(
-			`INSERT INTO teacher_rank (name) VALUES
-            (?)`,
-			[name],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async updateTeacherRank(req, res) {
-		const id = +req.params.id;
-		const { name } = req.body;
-		await db.query(
-			`UPDATE teacher_rank SET
-			name = ?
-            WHERE teacher_rank_id = ?`,
-			[name, id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async deleteTeacherRank(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`DELETE FROM teacher_rank WHERE teacher_rank_id = ?`,
-			[id],
-			(err, result, field) => {
-				if (err) {
-					console.log(err);
-					return res.status(500).json({ message: "Ошибка" });
-				}
-				res.json(result);
-			}
-		);
-	}
-	async getTeacherRanks(req, res) {
-		await db.query(`SELECT * FROM teacher_rank`, (err, result, field) => {
-			if (err) {
-				console.log(err);
-				return res.status(500).json({ message: "Ошибка" });
-			}
-			res.json(result);
-		});
-	}
-	async getTeacherRankRaw(req, res) {
-		const id = +req.params.id;
-		await db.query(
-			`SELECT * FROM teacher_rank
-			WHERE teacher_rank_id = ?`,
-			[id],
+			`SELECT \`инвентарный номер\` as copy_id, \`Шифр книги\` as book_id, \`название книги\` as book_name, \`первый автор\` as first_author
+			FROM LibSub.Экземпляры
+			JOIN LibSub.\`Книги\` ON \`Книги_Шифр книги\` = \`Шифр книги\``,
 			(err, result, field) => {
 				if (err) {
 					console.log(err);

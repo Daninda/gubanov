@@ -1,51 +1,30 @@
 import React, { Component } from "react";
 import { withSnackbar } from "react-simple-snackbar";
-import withRouter from "../withRouter.js";
 import DataService from "../../services/DataService.js";
 import { Link } from "react-router-dom";
 
-class UpdateGroup extends Component {
+class CreateCopy extends Component {
 	constructor(params) {
 		super(params);
 		this.state = {
-			group_id: null,
-			number: "",
+			book_id: "",
 		};
 
 		this.onClickSubmit = this.onClickSubmit.bind(this);
 	}
 
-	componentDidMount() {
-		this.retrieve();
-	}
-
-	retrieve() {
-		const group_id = +this.props.params.id;
-		DataService.getGroupRaw(group_id).then((res) => {
-			this.setState(
-				{
-					group_id: group_id,
-					prevState: res.data[0],
-				},
-				() => {
-					this.setState(this.state.prevState);
-				}
-			);
-		});
-	}
-
 	onClickSubmit() {
-		console.log(this.state);
-		if (this.state.number) {
-			DataService.updateGroup(this.state.group_id, {
-				number: this.state.number,
+		if (this.state.book_id) {
+			DataService.createCopy({
+				book_id: +this.state.book_id,
 			})
 				.then(() => {
-					this.retrieve();
+					this.setState({
+						book_id: "",
+					});
 					this.props.openSnackbar("Успешно", 5000);
 				})
 				.catch(() => {
-					this.retrieve();
 					this.props.openSnackbar("Ошибка", 5000);
 				});
 		} else {
@@ -55,11 +34,11 @@ class UpdateGroup extends Component {
 	render() {
 		return (
 			<>
-				<table className="table">
-					<caption className="table__title">Обновление группы</caption>
+				<table className="table student-table">
+					<caption className="table__title">Добавление экземпляра</caption>
 					<thead>
 						<tr>
-							<th>Группа</th>
+							<th>Код книги</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -68,10 +47,10 @@ class UpdateGroup extends Component {
 								<input
 									type="text"
 									className="input"
-									value={this.state.number}
+									value={this.state.book_id}
 									onChange={(e) => {
 										this.setState({
-											number: e.target.value,
+											book_id: e.target.value,
 										});
 									}}
 								/>
@@ -80,11 +59,11 @@ class UpdateGroup extends Component {
 					</tbody>
 				</table>
 				<Link className="add-button" onClick={this.onClickSubmit}>
-					Обновить
+					Добавить
 				</Link>
 			</>
 		);
 	}
 }
 
-export default withRouter(withSnackbar(UpdateGroup));
+export default withSnackbar(CreateCopy);

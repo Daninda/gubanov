@@ -7,139 +7,93 @@ const http = axios.create({
 });
 
 class DataService {
-	getTeachers() {
-		return http.get("/teachers");
+	getBooks() {
+		return http.get("/books");
 	}
-	getTeacherRaw(id) {
-		return http.get(`/teacher-raw/${id}`);
+	getBook(id) {
+		return http.get(`/book/${id}`);
 	}
-	createTeacher(data) {
-		return http.post("/teacher", data);
+	createBook(data) {
+		return http.post("/book", data);
 	}
-	updateTeacher(id, data) {
-		return http.put(`/teacher/${id}`, data);
+	updateBook(id, data) {
+		return http.put(`/book/${id}`, data);
 	}
-	deleteTeacher(id) {
-		return http.delete(`/teacher/${id}`);
-	}
-
-	getStudents() {
-		return http.get("/students");
-	}
-	getStudentRaw(id) {
-		return http.get(`/student-raw/${id}`);
-	}
-	createStudent(data) {
-		return http.post("/student", data);
-	}
-	updateStudent(id, data) {
-		return http.put(`/student/${id}`, data);
-	}
-	deleteStudent(id) {
-		return http.delete(`/student/${id}`);
+	deleteBook(id) {
+		return http.delete(`/book/${id}`);
 	}
 
-	getFreeTeacherTopics(id) {
-		return http.get(`/free-teacher-topics/${id}`);
+	getBookThemes() {
+		return http.get("/book-themes");
+	}
+	createBookTheme(data) {
+		return http.post("/book-theme", data);
+	}
+	deleteBookTheme(id) {
+		return http.delete(`/book-theme/${id}`);
 	}
 
-	getGroups() {
-		return http.get("/groups");
+	getThemes() {
+		return http.get("/themes");
 	}
-	getGroupRaw(id) {
-		return http.get(`/group-raw/${id}`);
+	getTheme(id) {
+		return http.get(`/theme/${id}`);
 	}
-	createGroup(data) {
-		return http.post("/group", data);
+	createTheme(data) {
+		return http.post("/theme", data);
 	}
-	updateGroup(id, data) {
-		return http.put(`/group/${id}`, data);
+	updateTheme(id, data) {
+		return http.put(`/theme/${id}`, data);
 	}
-	deleteGroup(id) {
-		return http.delete(`/group/${id}`);
-	}
-
-	getDepartments() {
-		return http.get("/departments");
-	}
-	getDepartmentRaw(id) {
-		return http.get(`/department-raw/${id}`);
-	}
-	createDepartment(data) {
-		return http.post("/department", data);
-	}
-	updateDepartment(id, data) {
-		return http.put(`/department/${id}`, data);
-	}
-	deleteDepartment(id) {
-		return http.delete(`/department/${id}`);
+	deleteTheme(id) {
+		return http.delete(`/theme/${id}`);
 	}
 
-	getScienceDegrees() {
-		return http.get("/science-degrees");
+	getReaders() {
+		return http.get("/readers");
 	}
-	getScienceDegreeRaw(id) {
-		return http.get(`/science-degree-raw/${id}`);
+	getReader(id) {
+		return http.get(`/reader/${id}`);
 	}
-	createScienceDegree(data) {
-		return http.post("/science-degree", data);
+	createReader(data) {
+		return http.post("/reader", data);
 	}
-	updateScienceDegree(id, data) {
-		return http.put(`/science-degree/${id}`, data);
+	updateReader(id, data) {
+		return http.put(`/reader/${id}`, data);
 	}
-	deleteScienceDegree(id) {
-		return http.delete(`/science-degree/${id}`);
-	}
-
-	getTeacherRanks() {
-		return http.get("/teacher-ranks");
-	}
-	getTeacherRankRaw(id) {
-		return http.get(`/teacher-rank-raw/${id}`);
-	}
-	createTeacherRank(data) {
-		return http.post("/teacher-rank", data);
-	}
-	updateTeacherRank(id, data) {
-		return http.put(`/teacher-rank/${id}`, data);
-	}
-	deleteTeacherRank(id) {
-		return http.delete(`/teacher-rank/${id}`);
+	deleteReader(id) {
+		return http.delete(`/reader/${id}`);
 	}
 
-	getFaculties() {
-		return http.get("/faculties");
+	getReaderCopies() {
+		return http.get("/reader-copies");
 	}
-	getFacultyRaw(id) {
-		return http.get(`/faculty-raw/${id}`);
+	getReaderCopy(reader_id, copy_id) {
+		return http.get(`/reader-copy/?reader_id=${reader_id}&copy_id=${copy_id}`);
 	}
-	createFaculty(data) {
-		return http.post("/faculty", data);
+	createReaderCopy(data) {
+		return http.post("/reader-copy", data);
 	}
-	updateFaculty(id, data) {
-		return http.put(`/faculty/${id}`, data);
+	updateReaderCopy(reader_id, copy_id, data) {
+		return http.put(
+			`/reader-copy/?reader_id=${reader_id}&copy_id=${copy_id}`,
+			data
+		);
 	}
-	deleteFaculty(id) {
-		return http.delete(`/faculty/${id}`);
+	deleteReaderCopy(reader_id, copy_id) {
+		return http.delete(
+			`/reader-copy/?reader_id=${reader_id}&copy_id=${copy_id}`
+		);
 	}
 
-	getTopics() {
-		return http.get("/topics");
+	getCopies() {
+		return http.get("/copies");
 	}
-	getTopicRaw(id) {
-		return http.get(`/topic-raw/${id}`);
+	createCopy(data) {
+		return http.post("/copy", data);
 	}
-	getTopic(id) {
-		return http.get(`/topic/${id}`);
-	}
-	createTopic(data) {
-		return http.post("/topic", data);
-	}
-	updateTopic(id, data) {
-		return http.put(`/topic/${id}`, data);
-	}
-	deleteTopic(id) {
-		return http.delete(`/topic/${id}`);
+	deleteCopy(id) {
+		return http.delete(`/copy/${id}`);
 	}
 }
 

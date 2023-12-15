@@ -3,24 +3,27 @@ import { withSnackbar } from "react-simple-snackbar";
 import DataService from "../../services/DataService.js";
 import { Link } from "react-router-dom";
 
-class CreateDepartment extends Component {
+class CreateBookTheme extends Component {
 	constructor(params) {
 		super(params);
 		this.state = {
-			name: "",
+			book_id: "",
+			theme_id: "",
 		};
 
 		this.onClickSubmit = this.onClickSubmit.bind(this);
 	}
 
 	onClickSubmit() {
-		if (this.state.name) {
-			DataService.createDepartment({
-				name: this.state.name,
+		if (this.state.book_id && this.state.theme_id) {
+			DataService.createBookTheme({
+				book_id: +this.state.book_id,
+				theme_id: +this.state.theme_id,
 			})
 				.then(() => {
 					this.setState({
-						name: "",
+						book_id: "",
+						theme_id: "",
 					});
 					this.props.openSnackbar("Успешно", 5000);
 				})
@@ -34,11 +37,12 @@ class CreateDepartment extends Component {
 	render() {
 		return (
 			<>
-				<table className="table">
-					<caption className="table__title">Добавление кафедры</caption>
+				<table className="table student-table">
+					<caption className="table__title">Добавление темы к книге</caption>
 					<thead>
 						<tr>
-							<th>Кафедра</th>
+							<th>Код книги</th>
+							<th>Код темы</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -47,10 +51,22 @@ class CreateDepartment extends Component {
 								<input
 									type="text"
 									className="input"
-									value={this.state.name}
+									value={this.state.book_id}
 									onChange={(e) => {
 										this.setState({
-											name: e.target.value,
+											book_id: e.target.value,
+										});
+									}}
+								/>
+							</td>
+							<td>
+								<input
+									type="text"
+									className="input"
+									value={this.state.theme_id}
+									onChange={(e) => {
+										this.setState({
+											theme_id: e.target.value,
 										});
 									}}
 								/>
@@ -66,4 +82,4 @@ class CreateDepartment extends Component {
 	}
 }
 
-export default withSnackbar(CreateDepartment);
+export default withSnackbar(CreateBookTheme);
